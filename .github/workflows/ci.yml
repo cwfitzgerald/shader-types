@@ -40,5 +40,5 @@ jobs:
     - name: Rustfmt and Clippy
       run: |
         cargo fmt -- --check
-        cargo clippy
+        cargo clippy -- -D warnings
       if: matrix.rust_version == 'stable'
