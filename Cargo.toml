@@ -16,7 +16,7 @@ std = []
 
 [dependencies]
 bytemuck = { version = "1", optional = true }
-mint = "0.5.5"
+mint = { version = "0.5.5", optional = true }
 
 [dev-dependencies]
 bytemuck = { version = "1" }

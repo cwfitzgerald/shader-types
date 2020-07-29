@@ -87,6 +87,7 @@ macro_rules! define_vector {
             }
         }
 
+        #[cfg(feature = "mint")]
         impl From<$mint_type> for $name {
             #[inline(always)]
             fn from(other: $mint_type) -> Self {
@@ -107,6 +108,7 @@ macro_rules! define_vector {
             }
         }
 
+        #[cfg(feature = "mint")]
         impl From<$name> for $mint_type {
             #[inline(always)]
             fn from(other: $name) -> Self {
@@ -162,6 +164,7 @@ macro_rules! define_matrix {
             }
         }
 
+        #[cfg(feature = "mint")]
         impl From<$mint_type> for $name {
             #[inline(always)]
             fn from(other: $mint_type) -> Self {
@@ -204,6 +207,7 @@ macro_rules! define_matrix {
             }
         }
 
+        #[cfg(feature = "mint")]
         impl From<$name> for $mint_type {
             #[inline(always)]
             fn from(other: $name) -> Self {
