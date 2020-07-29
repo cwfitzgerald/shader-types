@@ -65,7 +65,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 macro_rules! define_vector {
-    ($name:ident, [$($field:literal),*], $mint_type:ty, [$($mint_field:ident),*], $align:literal, $ty:ty, $count:literal<- $doc:literal) => {
+    ($name:ident, $mint_type:ty, $align:literal, $ty:ty, $count:literal<- $doc:literal) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
@@ -91,11 +91,10 @@ macro_rules! define_vector {
         impl From<$mint_type> for $name {
             #[inline(always)]
             fn from(other: $mint_type) -> Self {
-                Self {
-                    inner: [
-                        $( other.$mint_field, )*
-                    ],
-                }
+                // Mint's types do not implement From for arrays, only Into.
+                let inner: [$ty; $count] = other.into();
+
+                Self { inner }
             }
         }
 
@@ -112,11 +111,7 @@ macro_rules! define_vector {
         impl From<$name> for $mint_type {
             #[inline(always)]
             fn from(other: $name) -> Self {
-                Self {
-                    $(
-                        $mint_field: other.inner[$field],
-                    )*
-                }
+                other.inner.into()
             }
         }
 
@@ -129,18 +124,18 @@ macro_rules! define_vector {
     };
 }
 
-define_vector!(Vec2, [0, 1], mint::Vector2<f32>, [x, y], 8, f32, 2 <- "Vector of 2 f32s. Alignment 8, size 16.");
-define_vector!(Vec3, [0, 1, 2], mint::Vector3<f32>, [x, y, z], 16, f32, 3 <- "Vector of 3 f32s. Alignment 16, size 24.");
-define_vector!(Vec4, [0, 1, 2, 3], mint::Vector4<f32>, [x, y, z, w], 16, f32, 4 <- "Vector of 4 f32s. Alignment 16, size 32.");
-define_vector!(DVec2, [0, 1], mint::Vector2<f64>, [x, y], 16, f64, 2 <- "Vector of 2 f64s. Alignment 16, size 32.");
-define_vector!(DVec3, [0, 1, 2], mint::Vector3<f64>, [x, y, z], 32, f64, 3 <- "Vector of 3 f64s. Alignment 32, size 48.");
-define_vector!(DVec4, [0, 1, 2, 3], mint::Vector4<f64>, [x, y, z, w], 32, f64, 4 <- "Vector of 4 f64s. Alignment 32, size 64.");
-define_vector!(UVec2, [0, 1], mint::Vector2<u32>, [x, y], 8, u32, 2 <- "Vector of 2 u32s. Alignment 8, size 16.");
-define_vector!(UVec3, [0, 1, 2], mint::Vector3<u32>, [x, y, z], 16, u32, 3 <- "Vector of 3 u32s. Alignment 16, size 24.");
-define_vector!(UVec4, [0, 1, 2, 3], mint::Vector4<u32>, [x, y, z, w], 16, u32, 4 <- "Vector of 4 u32s. Alignment 16, size 32.");
-define_vector!(IVec2, [0, 1], mint::Vector2<i32>, [x, y], 8, i32, 2 <- "Vector of 2 i32s. Alignment 8, size 16.");
-define_vector!(IVec3, [0, 1, 2], mint::Vector3<i32>, [x, y, z], 16, i32, 3 <- "Vector of 3 i32s. Alignment 16, size 24.");
-define_vector!(IVec4, [0, 1, 2, 3], mint::Vector4<i32>, [x, y, z, w], 16, i32, 4 <- "Vector of 4 i32s. Alignment 16, size 32.");
+define_vector!(Vec2, mint::Vector2<f32>, 8, f32, 2 <- "Vector of 2 f32s. Alignment 8, size 16.");
+define_vector!(Vec3, mint::Vector3<f32>, 16, f32, 3 <- "Vector of 3 f32s. Alignment 16, size 24.");
+define_vector!(Vec4, mint::Vector4<f32>, 16, f32, 4 <- "Vector of 4 f32s. Alignment 16, size 32.");
+define_vector!(DVec2, mint::Vector2<f64>, 16, f64, 2 <- "Vector of 2 f64s. Alignment 16, size 32.");
+define_vector!(DVec3, mint::Vector3<f64>, 32, f64, 3 <- "Vector of 3 f64s. Alignment 32, size 48.");
+define_vector!(DVec4, mint::Vector4<f64>, 32, f64, 4 <- "Vector of 4 f64s. Alignment 32, size 64.");
+define_vector!(UVec2, mint::Vector2<u32>, 8, u32, 2 <- "Vector of 2 u32s. Alignment 8, size 16.");
+define_vector!(UVec3, mint::Vector3<u32>, 16, u32, 3 <- "Vector of 3 u32s. Alignment 16, size 24.");
+define_vector!(UVec4, mint::Vector4<u32>, 16, u32, 4 <- "Vector of 4 u32s. Alignment 16, size 32.");
+define_vector!(IVec2, mint::Vector2<i32>, 8, i32, 2 <- "Vector of 2 i32s. Alignment 8, size 16.");
+define_vector!(IVec3, mint::Vector3<i32>, 16, i32, 3 <- "Vector of 3 i32s. Alignment 16, size 24.");
+define_vector!(IVec4, mint::Vector4<i32>, 16, i32, 4 <- "Vector of 4 i32s. Alignment 16, size 32.");
 
 macro_rules! define_matrix {
     ($name:ident, $mint_type:ty, [$($column:ident),*], $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal -> $($idx:literal),* <- $doc:literal) => {
