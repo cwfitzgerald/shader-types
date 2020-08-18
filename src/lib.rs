@@ -86,8 +86,8 @@ macro_rules! define_vector {
                 }
             }
 
-            /// Construct a vector from any type that can convert into the
-            /// equivalent mint vector type.
+            /// Construct this vector from any type which is convertible into
+            /// the corresponding `mint` vector type.
             #[cfg(feature = "mint")]
             #[inline(always)]
             pub fn from_mint<T: Into<mint::$mint_type<$ty>>>(value: T) -> Self {
@@ -166,8 +166,8 @@ macro_rules! define_matrix {
                 Self { inner, _padding: [0; $padding] }
             }
 
-            /// Construct a matrix from any type that can convert into the
-            /// equivalent mint matrix type.
+            /// Construct this matrix from any type which is convertible into
+            /// the corresponding `mint` matrix type.
             #[cfg(feature = "mint")]
             #[inline(always)]
             pub fn from_mint<T: Into<mint::$mint_type<$inner_ty>>>(value: T) -> Self {
