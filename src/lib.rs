@@ -67,23 +67,25 @@
 macro_rules! define_vectors {
     ( $(( $name:ident, $mint_name:ident, $prim:ident * $count:literal, align: $align:literal, size: $size:literal ),)* ) => {
         $(
-            define_vector!(
+            define_vectors!(@impl
                 $name,
                 mint::$mint_name<$prim>,
                 $align,
                 $prim,
                 $count,
                 concat!(
-                    "Vector of ", stringify!($count), " ", stringify!($prim), "s. ",
-                    "Alignment ", stringify!($align), " size ", stringify!($size), "."
+                    "Vector of ", stringify!($count), " `", stringify!($prim), "`. ",
+                    "Has size ", stringify!($size), " and alignment ", stringify!($align), "."
+                ),
+                concat!(
+                    "Construct a ", stringify!($name), " from any type which is convertable into a ",
+                    "`mint::", stringify!($mint_name), "<", stringify!($prim), ">`."
                 )
             );
         )*
     };
-}
 
-macro_rules! define_vector {
-    ($name:ident, $mint_type:ty, $align:literal, $ty:ty, $count:literal, $doc:expr) => {
+    (@impl $name:ident, $mint_type:ty, $align:literal, $ty:ty, $count:literal, $doc:expr, $mint_doc:expr) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
@@ -104,9 +106,8 @@ macro_rules! define_vector {
                 }
             }
 
-            /// Construct this vector from any type which is convertible into
-            /// the corresponding `mint` vector type.
             #[cfg(feature = "mint")]
+            #[doc = $mint_doc]
             #[inline(always)]
             pub fn from_mint<T: Into<$mint_type>>(value: T) -> Self {
                 Self::from(value.into())
