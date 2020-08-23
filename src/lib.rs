@@ -169,13 +169,13 @@ define_vectors! {
 macro_rules! define_matrices {
     ( $(( $name:ident, $mint_name:ident, $prim_ty:ty, $row_ty:ty, $rows:literal * $cols:literal, align: $align:literal, size: $size:literal, pad: $pad:literal, [$($idx:literal),*] ),)* ) => {
         $(
-            define_matrix!($name, $mint_name, $align, $prim_ty, $row_ty, $rows, $cols, $pad -> $( $idx ),* <- "hello");
+            define_matrix!($name, mint::$mint_name<$prim_ty>, $align, $prim_ty, $row_ty, $rows, $cols, $pad -> $( $idx ),* <- "hello");
         )*
     };
 }
 
 macro_rules! define_matrix {
-    ($name:ident, $mint_type:ident, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal -> $($idx:literal),* <- $doc:literal) => {
+    ($name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal -> $($idx:literal),* <- $doc:literal) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
@@ -199,15 +199,15 @@ macro_rules! define_matrix {
             /// the corresponding `mint` matrix type.
             #[cfg(feature = "mint")]
             #[inline(always)]
-            pub fn from_mint<T: Into<mint::$mint_type<$inner_ty>>>(value: T) -> Self {
+            pub fn from_mint<T: Into<$mint_type>>(value: T) -> Self {
                 Self::from(value.into())
             }
         }
 
         #[cfg(feature = "mint")]
-        impl From<mint::$mint_type<$inner_ty>> for $name {
+        impl From<$mint_type> for $name {
             #[inline(always)]
-            fn from(other: mint::$mint_type<$inner_ty>) -> Self {
+            fn from(other: $mint_type) -> Self {
                 // Mint's types do not implement From for arrays, only Into.
                 let as_arr: [$inner_ty; $count_x * $count_y] = other.into();
                 as_arr.into()
@@ -243,7 +243,7 @@ macro_rules! define_matrix {
         }
 
         #[cfg(feature = "mint")]
-        impl From<$name> for mint::$mint_type<$inner_ty> {
+        impl From<$name> for $mint_type {
             #[inline(always)]
             fn from(other: $name) -> Self {
                 let as_arr = <[[$inner_ty; $count_x]; $count_y]>::from(other);
