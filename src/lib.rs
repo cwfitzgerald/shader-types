@@ -78,7 +78,7 @@ macro_rules! define_vectors {
                     "Has size ", stringify!($size), " and alignment ", stringify!($align), "."
                 ),
                 concat!(
-                    "Construct a ", stringify!($name), " from any type which is convertable into a ",
+                    "Construct a `", stringify!($name), "` from any type which is convertable into a ",
                     "`mint::", stringify!($mint_name), "<", stringify!($prim), ">`."
                 )
             );
@@ -182,12 +182,16 @@ macro_rules! define_matrices {
                 concat!(
                     "Matrix of `", stringify!($prim_ty), "` with ", stringify!($rows), " rows and ", stringify!($cols), " columns. ",
                     "Has size ", stringify!($size), ", alignment ", stringify!($align), ", and ", stringify!($pad), " bytes of extra padding."
+                ),
+                concat!(
+                    "Construct a `", stringify!($name), "` from any type which is convertable into a ",
+                    "`mint::", stringify!($mint_name), "<", stringify!($prim_ty), ">`."
                 )
             );
         )*
     };
 
-    (@impl $name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal, [$( $idx:literal ),*], $doc:expr) => {
+    (@impl $name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal, [$( $idx:literal ),*], $doc:expr, $mint_doc:expr) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
@@ -207,9 +211,8 @@ macro_rules! define_matrices {
                 Self { inner, _padding: [0; $padding] }
             }
 
-            /// Construct this matrix from any type which is convertible into
-            /// the corresponding `mint` matrix type.
             #[cfg(feature = "mint")]
+            #[doc = $mint_doc]
             #[inline(always)]
             pub fn from_mint<T: Into<$mint_type>>(value: T) -> Self {
                 Self::from(value.into())
