@@ -169,13 +169,27 @@ define_vectors! {
 macro_rules! define_matrices {
     ( $(( $name:ident, $mint_name:ident, $prim_ty:ty, $row_ty:ty, $rows:literal * $cols:literal, align: $align:literal, size: $size:literal, pad: $pad:literal, [$($idx:literal),*] ),)* ) => {
         $(
-            define_matrix!($name, mint::$mint_name<$prim_ty>, $align, $prim_ty, $row_ty, $rows, $cols, $pad -> $( $idx ),* <- "hello");
+            define_matrix!(
+                $name,
+                mint::$mint_name<$prim_ty>,
+                $align,
+                $prim_ty,
+                $row_ty,
+                $rows,
+                $cols,
+                $pad,
+                [$( $idx ),*],
+                concat!(
+                    "Matrix of `", stringify!($prim_ty), "` with ", stringify!($rows), " rows and ", stringify!($cols), " columns. ",
+                    "Has size ", stringify!($size), ", alignment ", stringify!($align), ", and ", stringify!($pad), " bytes of extra padding."
+                )
+            );
         )*
     };
 }
 
 macro_rules! define_matrix {
-    ($name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal -> $($idx:literal),* <- $doc:literal) => {
+    ($name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal, [$( $idx:literal ),*], $doc:expr) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
@@ -276,29 +290,29 @@ macro_rules! define_matrix {
 }
 
 define_matrices! {
-    (Mat2x2, ColumnMatrix2, f32, Vec2, 2 * 2, align: 8, size: 0, pad: 0, [0, 1]),
-    (Mat2x3, ColumnMatrix2x3, f32, Vec2, 2 * 3, align: 8, size: 0, pad: 8, [0, 1, 2]),
-    (Mat2x4, ColumnMatrix2x4, f32, Vec2, 2 * 4, align: 8, size: 0, pad: 0, [0, 1, 2, 3]),
+    (Mat2x2, ColumnMatrix2, f32, Vec2, 2 * 2, align: 8, size: 16, pad: 0, [0, 1]),
+    (Mat2x3, ColumnMatrix2x3, f32, Vec2, 2 * 3, align: 8, size: 32, pad: 8, [0, 1, 2]),
+    (Mat2x4, ColumnMatrix2x4, f32, Vec2, 2 * 4, align: 8, size: 32, pad: 0, [0, 1, 2, 3]),
 
-    (Mat3x2, ColumnMatrix3x2, f32, Vec3, 3 * 2, align: 16, size: 0, pad: 4, [0, 1]),
-    (Mat3x3, ColumnMatrix3, f32, Vec3, 3 * 3, align: 16, size: 0, pad: 4, [0, 1, 2]),
-    (Mat3x4, ColumnMatrix3x4, f32, Vec3, 3 * 4, align: 16, size: 0, pad: 4, [0, 1, 2, 3]),
+    (Mat3x2, ColumnMatrix3x2, f32, Vec3, 3 * 2, align: 16, size: 32, pad: 4, [0, 1]),
+    (Mat3x3, ColumnMatrix3, f32, Vec3, 3 * 3, align: 16, size: 48, pad: 4, [0, 1, 2]),
+    (Mat3x4, ColumnMatrix3x4, f32, Vec3, 3 * 4, align: 16, size: 64, pad: 4, [0, 1, 2, 3]),
 
-    (Mat4x2, ColumnMatrix4x2, f32, Vec4, 4 * 2, align: 16, size: 0, pad: 0, [0, 1]),
-    (Mat4x3, ColumnMatrix4x3, f32, Vec4, 4 * 3, align: 16, size: 0, pad: 0, [0, 1, 2]),
-    (Mat4x4, ColumnMatrix4, f32, Vec4, 4 * 4, align: 16, size: 0, pad: 0, [0, 1, 2, 3]),
+    (Mat4x2, ColumnMatrix4x2, f32, Vec4, 4 * 2, align: 16, size: 32, pad: 0, [0, 1]),
+    (Mat4x3, ColumnMatrix4x3, f32, Vec4, 4 * 3, align: 16, size: 48, pad: 0, [0, 1, 2]),
+    (Mat4x4, ColumnMatrix4, f32, Vec4, 4 * 4, align: 16, size: 64, pad: 0, [0, 1, 2, 3]),
 
-    (DMat2x2, ColumnMatrix2, f64, DVec2, 2 * 2, align: 16, size: 0, pad: 0, [0, 1]),
-    (DMat2x3, ColumnMatrix2x3, f64, DVec2, 2 * 3, align: 16, size: 0, pad: 0, [0, 1, 2]),
-    (DMat2x4, ColumnMatrix2x4, f64, DVec2, 2 * 4, align: 16, size: 0, pad: 0, [0, 1, 2, 3]),
+    (DMat2x2, ColumnMatrix2, f64, DVec2, 2 * 2, align: 16, size: 32, pad: 0, [0, 1]),
+    (DMat2x3, ColumnMatrix2x3, f64, DVec2, 2 * 3, align: 16, size: 48, pad: 0, [0, 1, 2]),
+    (DMat2x4, ColumnMatrix2x4, f64, DVec2, 2 * 4, align: 16, size: 64, pad: 0, [0, 1, 2, 3]),
 
-    (DMat3x2, ColumnMatrix3x2, f64, DVec3, 3 * 2, align: 32, size: 0, pad: 0, [0, 1]),
-    (DMat3x3, ColumnMatrix3, f64, DVec3, 3 * 3, align: 32, size: 0, pad: 0, [0, 1, 2]),
-    (DMat3x4, ColumnMatrix3x4, f64, DVec3, 3 * 4, align: 32, size: 0, pad: 0, [0, 1, 2, 3]),
+    (DMat3x2, ColumnMatrix3x2, f64, DVec3, 3 * 2, align: 32, size: 64, pad: 0, [0, 1]),
+    (DMat3x3, ColumnMatrix3, f64, DVec3, 3 * 3, align: 32, size: 96, pad: 0, [0, 1, 2]),
+    (DMat3x4, ColumnMatrix3x4, f64, DVec3, 3 * 4, align: 32, size: 128, pad: 0, [0, 1, 2, 3]),
 
-    (DMat4x2, ColumnMatrix4x2, f64, DVec4, 4 * 2, align: 32, size: 0, pad: 0, [0, 1]),
-    (DMat4x3, ColumnMatrix4x3, f64, DVec4, 4 * 3, align: 32, size: 0, pad: 0, [0, 1, 2]),
-    (DMat4x4, ColumnMatrix4, f64, DVec4, 4 * 4, align: 32, size: 0, pad: 0, [0, 1, 2, 3]),
+    (DMat4x2, ColumnMatrix4x2, f64, DVec4, 4 * 2, align: 32, size: 64, pad: 0, [0, 1]),
+    (DMat4x3, ColumnMatrix4x3, f64, DVec4, 4 * 3, align: 32, size: 96, pad: 0, [0, 1, 2]),
+    (DMat4x4, ColumnMatrix4, f64, DVec4, 4 * 4, align: 32, size: 128, pad: 0, [0, 1, 2, 3]),
 }
 
 /// Matrix of f32s with 2 columns and 2 rows. Alignment 8, size 16.
