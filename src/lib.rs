@@ -169,7 +169,7 @@ define_vectors! {
 macro_rules! define_matrices {
     ( $(( $name:ident, $mint_name:ident, $prim_ty:ty, $row_ty:ty, $rows:literal * $cols:literal, align: $align:literal, size: $size:literal, pad: $pad:literal, [$($idx:literal),*] ),)* ) => {
         $(
-            define_matrix!(
+            define_matrices!(@impl
                 $name,
                 mint::$mint_name<$prim_ty>,
                 $align,
@@ -186,10 +186,8 @@ macro_rules! define_matrices {
             );
         )*
     };
-}
 
-macro_rules! define_matrix {
-    ($name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal, [$( $idx:literal ),*], $doc:expr) => {
+    (@impl $name:ident, $mint_type:ty, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal, [$( $idx:literal ),*], $doc:expr) => {
         #[doc = $doc]
         #[repr(C, align($align))]
         #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd)]
