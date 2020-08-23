@@ -166,6 +166,14 @@ define_vectors! {
     (IVec4, Vector4, i32 * 4, align: 16, size: 32),
 }
 
+macro_rules! define_matrices {
+    ( $(( $name:ident, $mint_name:ident, $prim_ty:ty, $row_ty:ty, $rows:literal * $cols:literal, align: $align:literal, size: $size:literal, pad: $pad:literal, [$($idx:literal),*] ),)* ) => {
+        $(
+            define_matrix!($name, $mint_name, $align, $prim_ty, $row_ty, $rows, $cols, $pad -> $( $idx ),* <- "hello");
+        )*
+    };
+}
+
 macro_rules! define_matrix {
     ($name:ident, $mint_type:ident, $align:literal, $inner_ty:ty, $ty:ty, $count_x:literal, $count_y:literal, $padding:literal -> $($idx:literal),* <- $doc:literal) => {
         #[doc = $doc]
@@ -267,17 +275,31 @@ macro_rules! define_matrix {
     };
 }
 
-define_matrix!(Mat2x2, ColumnMatrix2, 8, f32, Vec2, 2, 2, 0 -> 0, 1 <- "Matrix of f32s with 2 columns and 2 rows. Alignment 8, size 16.");
-define_matrix!(Mat2x3, ColumnMatrix2x3, 8, f32, Vec2, 2, 3, 8 -> 0, 1, 2 <- "Matrix of f32s with 2 columns and 3 rows. Alignment 8, size 32.");
-define_matrix!(Mat2x4, ColumnMatrix2x4, 8, f32, Vec2, 2, 4, 0 -> 0, 1, 2, 3 <- "Matrix of f32s with 2 columns and 4 rows. Alignment 8, size 32.");
+define_matrices! {
+    (Mat2x2, ColumnMatrix2, f32, Vec2, 2 * 2, align: 8, size: 0, pad: 0, [0, 1]),
+    (Mat2x3, ColumnMatrix2x3, f32, Vec2, 2 * 3, align: 8, size: 0, pad: 8, [0, 1, 2]),
+    (Mat2x4, ColumnMatrix2x4, f32, Vec2, 2 * 4, align: 8, size: 0, pad: 0, [0, 1, 2, 3]),
 
-define_matrix!(Mat3x2, ColumnMatrix3x2, 16, f32, Vec3, 3, 2, 4 -> 0, 1 <- "Matrix of f32s with 3 columns and 2 rows. Alignment 16, size 32.");
-define_matrix!(Mat3x3, ColumnMatrix3, 16, f32, Vec3, 3, 3, 4 -> 0, 1, 2 <- "Matrix of f32s with 3 columns and 3 rows. Alignment 16, size 48.");
-define_matrix!(Mat3x4, ColumnMatrix3x4, 16, f32, Vec3, 3, 4, 4 -> 0, 1, 2, 3 <- "Matrix of f32s with 3 columns and 4 rows. Alignment 16, size 64.");
+    (Mat3x2, ColumnMatrix3x2, f32, Vec3, 3 * 2, align: 16, size: 0, pad: 4, [0, 1]),
+    (Mat3x3, ColumnMatrix3, f32, Vec3, 3 * 3, align: 16, size: 0, pad: 4, [0, 1, 2]),
+    (Mat3x4, ColumnMatrix3x4, f32, Vec3, 3 * 4, align: 16, size: 0, pad: 4, [0, 1, 2, 3]),
 
-define_matrix!(Mat4x2, ColumnMatrix4x2, 16, f32, Vec4, 4, 2, 0 -> 0, 1 <- "Matrix of f32s with 4 columns and 2 rows. Alignment 16, size 32.");
-define_matrix!(Mat4x3, ColumnMatrix4x3, 16, f32, Vec4, 4, 3, 0 -> 0, 1, 2 <- "Matrix of f32s with 4 columns and 3 rows. Alignment 16, size 48.");
-define_matrix!(Mat4x4, ColumnMatrix4, 16, f32, Vec4, 4, 4, 0 -> 0, 1, 2, 3 <- "Matrix of f32s with 4 columns and 4 rows. Alignment 16, size 64.");
+    (Mat4x2, ColumnMatrix4x2, f32, Vec4, 4 * 2, align: 16, size: 0, pad: 0, [0, 1]),
+    (Mat4x3, ColumnMatrix4x3, f32, Vec4, 4 * 3, align: 16, size: 0, pad: 0, [0, 1, 2]),
+    (Mat4x4, ColumnMatrix4, f32, Vec4, 4 * 4, align: 16, size: 0, pad: 0, [0, 1, 2, 3]),
+
+    (DMat2x2, ColumnMatrix2, f64, DVec2, 2 * 2, align: 16, size: 0, pad: 0, [0, 1]),
+    (DMat2x3, ColumnMatrix2x3, f64, DVec2, 2 * 3, align: 16, size: 0, pad: 0, [0, 1, 2]),
+    (DMat2x4, ColumnMatrix2x4, f64, DVec2, 2 * 4, align: 16, size: 0, pad: 0, [0, 1, 2, 3]),
+
+    (DMat3x2, ColumnMatrix3x2, f64, DVec3, 3 * 2, align: 32, size: 0, pad: 0, [0, 1]),
+    (DMat3x3, ColumnMatrix3, f64, DVec3, 3 * 3, align: 32, size: 0, pad: 0, [0, 1, 2]),
+    (DMat3x4, ColumnMatrix3x4, f64, DVec3, 3 * 4, align: 32, size: 0, pad: 0, [0, 1, 2, 3]),
+
+    (DMat4x2, ColumnMatrix4x2, f64, DVec4, 4 * 2, align: 32, size: 0, pad: 0, [0, 1]),
+    (DMat4x3, ColumnMatrix4x3, f64, DVec4, 4 * 3, align: 32, size: 0, pad: 0, [0, 1, 2]),
+    (DMat4x4, ColumnMatrix4, f64, DVec4, 4 * 4, align: 32, size: 0, pad: 0, [0, 1, 2, 3]),
+}
 
 /// Matrix of f32s with 2 columns and 2 rows. Alignment 8, size 16.
 pub type Mat2 = Mat2x2;
@@ -285,19 +307,6 @@ pub type Mat2 = Mat2x2;
 pub type Mat3 = Mat3x3;
 /// Matrix of f32s with 4 columns and 4 rows. Alignment 16, size 64.
 pub type Mat4 = Mat4x4;
-
-define_matrix!(DMat2x2, ColumnMatrix2, 16, f64, DVec2, 2, 2, 0 -> 0, 1 <- "Matrix of f64s with 2 columns and 2 rows. Alignment 16, size 32.");
-define_matrix!(DMat2x3, ColumnMatrix2x3, 16, f64, DVec2, 2, 3, 0 -> 0, 1, 2 <- "Matrix of f64s with 2 columns and 3 rows. Alignment 16, size 48.");
-define_matrix!(DMat2x4, ColumnMatrix2x4, 16, f64, DVec2, 2, 4, 0 -> 0, 1, 2, 3 <- "Matrix of f64s with 2 columns and 4 rows. Alignment 16, size 64.");
-
-define_matrix!(DMat3x2, ColumnMatrix3x2, 32, f64, DVec3, 3, 2, 0 -> 0, 1 <- "Matrix of f64s with 3 columns and 2 rows. Alignment 32, size 64.");
-define_matrix!(DMat3x3, ColumnMatrix3, 32, f64, DVec3, 3, 3, 0 -> 0, 1, 2 <- "Matrix of f64s with 3 columns and 3 rows. Alignment 32, size 96.");
-define_matrix!(DMat3x4, ColumnMatrix3x4, 32, f64, DVec3, 3, 4, 0 -> 0, 1, 2, 3 <- "Matrix of f64s with 3 columns and 4 rows. Alignment 32, size 128.");
-
-define_matrix!(DMat4x2, ColumnMatrix4x2, 32, f64, DVec4, 4, 2, 0 -> 0, 1 <- "Matrix of f64s with 4 columns and 2 rows. Alignment 32, size 64.");
-define_matrix!(DMat4x3, ColumnMatrix4x3, 32, f64, DVec4, 4, 3, 0 -> 0, 1, 2 <- "Matrix of f64s with 4 columns and 3 rows. Alignment 32, size 96.");
-define_matrix!(DMat4x4, ColumnMatrix4, 32, f64, DVec4, 4, 4, 0 -> 0, 1, 2, 3 <- "Matrix of f64s with 4 columns and 4 rows. Alignment 32, size 128.");
-
 /// Matrix of f64s with 2 columns and 3 rows. Alignment 16, size 48.
 pub type DMat2 = DMat2x2;
 /// Matrix of f64s with 3 columns and 3 rows. Alignment 32, size 96.
