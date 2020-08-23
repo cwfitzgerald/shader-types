@@ -20,14 +20,14 @@
 //!     vec3 position;
 //!     vec3 normal;
 //!     vec2 uv;
+//!     int constants[3];
 //! };
 //! ```
 //!
 //! This struct is rife with padding. However it's now easy to mind the padding:
 //!
 //! ```rust
-//! use shader_types::{Vec2, Vec3, Mat4};
-//! use shader_types::padding::Pad2Float;
+//! use shader_types::{Vec2, Vec3, Mat4, ArrayMember};
 //!
 //! // Definition
 //! #[repr(C)]
@@ -37,6 +37,7 @@
 //!     position: Vec3, // 16 align + 12 size
 //!     normal: Vec3, // 16 align + 12 size
 //!     uv: Vec2, // 8 align + 8 size
+//!     constants: [ArrayMember<i32>; 3] // 3x 16 align + 4 size
 //! }
 //!
 //! fn generate_mvp() -> [f32; 16] {
@@ -51,6 +52,7 @@
 //!     position: Vec3::new([0.0, 1.0, 2.0]), // `from` also works
 //!     normal: Vec3::new([-2.0, 2.0, 3.0]),
 //!     uv: Vec2::new([0.0, 1.0]),
+//!     constants: [ArrayMember(0), ArrayMember(1), ArrayMember(2)]
 //! };
 //!
 //! // Supports bytemuck with the `bytemuck` feature
@@ -281,6 +283,47 @@ pub type DMat2 = DMat2x2;
 pub type DMat3 = DMat3x3;
 /// Matrix of f64s with 4 columns and 4 rows. Alignment 32, size 128.
 pub type DMat4 = DMat4x4;
+
+/// Pads an element to be in an array in a shader.
+///
+/// All elements in arrays need to be aligned to 16s. This automatically aligns your types to 16s.
+///
+/// This glsl:
+///
+/// ```glsl
+/// struct FloatArray {
+///     float array[16];
+/// };
+/// ```
+///
+/// turns into:
+///
+/// ```rust
+/// #[repr(C)]
+/// struct FloatArray {
+///     array: [shader_types::ArrayMember<f32>; 16]
+/// }
+/// ```
+#[repr(C, align(16))]
+#[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub struct ArrayMember<T>(pub T);
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: bytemuck::Zeroable> bytemuck::Zeroable for ArrayMember<T> {}
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: bytemuck::Pod> bytemuck::Pod for ArrayMember<T> {}
+
+/// Pads a structure for use with dynamic offsets in wgpu.
+///
+/// All dynamic offsets need to be aligned to 256s. This automatically aligns your types to 256s.
+#[repr(C, align(256))]
+#[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
+pub struct DynamicOffsetMember<T>(pub T);
+
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: bytemuck::Zeroable> bytemuck::Zeroable for DynamicOffsetMember<T> {}
+#[cfg(feature = "bytemuck")]
+unsafe impl<T: bytemuck::Pod> bytemuck::Pod for DynamicOffsetMember<T> {}
 
 /// Correctly sized padding helpers.
 pub mod padding {

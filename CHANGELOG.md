@@ -16,6 +16,7 @@ and this project adheres to cargo's version of [Semantic Versioning](https://sem
 - Added `From<mint::*>` impls for all types.
 - Added `From<shader_types::*>` impls for mint types.
 - Added `from_mint` functions for easy conversion from anything that is convertable to a mint type.
+- Added `ArrayMember` and `DynamicOffsetMember` types.
 - `#[no_std]` support though disabling the `std` feature.
 
 ## v0.2.0
