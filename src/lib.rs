@@ -181,7 +181,7 @@ macro_rules! define_matrices {
                 [$( $idx ),*],
                 concat!(
                     "Matrix of `", stringify!($prim_ty), "` values with ", stringify!($rows), " rows and ", stringify!($cols), " columns. ",
-                    "Has size ", stringify!($size), ", alignment ", stringify!($align), ", and ", stringify!($pad), " bytes of extra padding."
+                    "Has size ", stringify!($size), " and alignment ", stringify!($align), "."
                 ),
                 concat!(
                     "Construct a `", stringify!($name), "` from any type which is convertable into a ",
