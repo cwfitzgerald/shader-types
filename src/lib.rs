@@ -286,7 +286,7 @@ pub type DMat4 = DMat4x4;
 
 /// Pads an element to be in an array in a shader.
 ///
-/// All elements in arrays need to be aligned to 16s. This automatically aligns your types to 16s.
+/// All elements in arrays need to be aligned to 16 bytes. This automatically aligns your types to 16 bytes.
 ///
 /// This glsl:
 ///
@@ -313,9 +313,9 @@ unsafe impl<T: bytemuck::Zeroable> bytemuck::Zeroable for ArrayMember<T> {}
 #[cfg(feature = "bytemuck")]
 unsafe impl<T: bytemuck::Pod> bytemuck::Pod for ArrayMember<T> {}
 
-/// Pads a structure for use with dynamic offsets in wgpu.
+/// Pads a structure for use with dynamic offsets in graphics apis.
 ///
-/// All dynamic offsets need to be aligned to 256s. This automatically aligns your types to 256s.
+/// All dynamic offsets need to be aligned to 256 bytes. This automatically aligns your types to 256s.
 #[repr(C, align(256))]
 #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct DynamicOffsetMember<T>(pub T);
