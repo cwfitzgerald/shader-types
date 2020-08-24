@@ -74,7 +74,7 @@ macro_rules! define_vectors {
                 $prim,
                 $count,
                 concat!(
-                    "Vector of ", stringify!($count), " `", stringify!($prim), "`. ",
+                    "Vector of ", stringify!($count), " `", stringify!($prim), "` values. ",
                     "Has size ", stringify!($size), " and alignment ", stringify!($align), "."
                 ),
                 concat!(
@@ -180,7 +180,7 @@ macro_rules! define_matrices {
                 $pad,
                 [$( $idx ),*],
                 concat!(
-                    "Matrix of `", stringify!($prim_ty), "` with ", stringify!($rows), " rows and ", stringify!($cols), " columns. ",
+                    "Matrix of `", stringify!($prim_ty), "` values with ", stringify!($rows), " rows and ", stringify!($cols), " columns. ",
                     "Has size ", stringify!($size), ", alignment ", stringify!($align), ", and ", stringify!($pad), " bytes of extra padding."
                 ),
                 concat!(
