@@ -292,7 +292,7 @@ pub type DMat4 = DMat4x4;
 ///
 /// ```glsl
 /// struct FloatArray {
-///     float array[16];
+///     float array[45];
 /// };
 /// ```
 ///
@@ -301,7 +301,7 @@ pub type DMat4 = DMat4x4;
 /// ```rust
 /// #[repr(C)]
 /// struct FloatArray {
-///     array: [shader_types::ArrayMember<f32>; 16]
+///     array: [shader_types::ArrayMember<f32>; 45]
 /// }
 /// ```
 #[repr(C, align(16))]
@@ -316,6 +316,66 @@ unsafe impl<T: bytemuck::Pod> bytemuck::Pod for ArrayMember<T> {}
 /// Pads a structure for use with dynamic offsets in graphics apis.
 ///
 /// All dynamic offsets need to be aligned to 256 bytes. This automatically aligns your types to 256s.
+///
+/// Given a shader of:
+///
+/// ```glsl
+/// uniform Uniforms {
+///     mat4 mvp;
+///     mat4 mv;
+/// };
+/// ```
+///
+/// An array of rust structs can be made and used:
+///
+/// ```rust
+/// use shader_types::{Mat4, DynamicOffsetMember};
+/// # use std::mem::size_of;
+///
+/// // Implementations don't matter
+/// fn generate_mvp(_: usize) -> [f32; 16] {
+///     // ...
+/// #     unsafe { std::mem::zeroed() }
+/// }
+/// fn generate_mv(_: usize) -> [f32; 16] {
+///     // ...
+/// #     unsafe { std::mem::zeroed() }
+/// }
+/// fn set_uniform_buffer(_: &[DynamicOffsetMember<Uniforms>]) {
+///     // ...
+/// }
+/// fn bind_uniform_with_offset(_: usize) {
+///     // ...
+/// }
+/// fn render_object(_: usize) {
+///     // ...
+/// }
+///
+/// #[repr(C)]
+/// struct Uniforms {
+///     mvp: Mat4,
+///     mv: Mat4,
+/// }
+///
+/// // Generate buffer
+/// let mut vec: Vec<DynamicOffsetMember<Uniforms>> = Vec::new();
+/// for obj_idx in 0..10 {
+///     vec.push(DynamicOffsetMember(Uniforms {
+///         mvp: Mat4::from(generate_mvp(obj_idx)),
+///         mv: Mat4::from(generate_mv(obj_idx)),
+///     }))
+/// }
+///
+/// // Use Buffer
+/// set_uniform_buffer(&vec);
+/// for obj_idx in 0..10 {
+///     let offset = obj_idx * size_of::<DynamicOffsetMember<Uniforms>>();
+///     // Offset must be aligned by 256
+///     assert_eq!(offset % 256, 0);
+///     bind_uniform_with_offset(offset);
+///     render_object(obj_idx);
+/// }
+/// ```
 #[repr(C, align(256))]
 #[derive(Debug, Copy, Clone, Default, PartialEq, PartialOrd, Eq, Ord, Hash)]
 pub struct DynamicOffsetMember<T>(pub T);
